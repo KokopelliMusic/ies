@@ -13,7 +13,10 @@ enum GameTypes {
 
 const REFRESH_INTERVAL = 10 // seconds
 const GAME_CHECK_INTERVAL = 5 // seconds
-const MIN_GAME_INTERVAL = 60 * 15
+// This is the minimum amount of checks that have to have passed before a game can start
+const MIN_GAME_INTERVAL = 2 // 60 * 15
+const DEFAULT_GAME_CHANCE = 0.2
+
 
 export default function GameView() {
   const [time, setTime] = useState<number>(0)
@@ -26,8 +29,10 @@ export default function GameView() {
   const [currentlyPlaying, setCurrentlyPlaying] = useState<CurrentlyPlayingData | null>(null)
   const [previouslyPlayed, setPreviouslyPlayed] = useState<CurrentlyPlayingData | null>(null)
   const [timeSinceLastGame, setTimeSinceLastGame] = useState<number>(0)
+  const [gameChance, setGameChance] = useState<number>(DEFAULT_GAME_CHANCE)
   const [players, setPlayers] = useState<string[]>([])
 
+  const [bg, setBg] = useState<{ fgColor: string, bgColor: string }>({ fgColor: '#80b', bgColor: '#001220' })
 
   // Setup app
   useEffect(() => {
@@ -52,21 +57,30 @@ export default function GameView() {
     localStorage.setItem('time', time.toString())
 
     if (time % REFRESH_INTERVAL === 0) {
-      console.log('Refreshing Spotify')
       refreshSpotify()
     }
 
     if (time % GAME_CHECK_INTERVAL === 0) {
+      if (currentGame !== null) {
+        return
+      }
+
       setTimeSinceLastGame(t => t + 1)
 
       if (timeSinceLastGame > MIN_GAME_INTERVAL) {
         // Now, we have a 20% chance of starting a game
-        if (Math.random() > 0.2) {
+        if (Math.random() > gameChance) {
+          console.log('No game this time, but increasing chance for next time. Current chance: ' + gameChance)
+          setGameChance(c => c + 0.1)
           return
         }
 
-        // 
+        setGameChance(DEFAULT_GAME_CHANCE)
 
+        // Start a game!
+        const game = Math.floor(Math.random() * Object.keys(GameTypes).length / 2)
+        console.log('Game time! We are going to play: ' + game)
+        setCurrentGame(game)
       }
     }
   }, [time])
@@ -76,13 +90,26 @@ export default function GameView() {
     savePlayers()
   }, [players])
 
+  // A new game starts!
+  useEffect(() => {
+    if (currentGame === null) {
+      setTimeSinceLastGame(0)
+      return
+    }
+
+    setBg({ fgColor: bg.bgColor, bgColor: bg.fgColor })
+  }, [currentGame])
+
   /*
    * FUNCTIONS 
    */
 
   function refreshSpotify() {
     return fetch('/api/spotify')
-      .then(res => res.json())
+      .then(res => {
+        if (res.status !== 200) return
+        return res.json()
+      })
       .then(data => {
         setPreviouslyPlayed(currentlyPlaying ?? data)
         setTimeout(() => setPreviouslyPlayed(data), 2500)
@@ -108,7 +135,7 @@ export default function GameView() {
 
   if (loading) return <div className={styles.game}>
     <div className={styles.bg}>
-      <Background />
+      <Background fgColor={bg.fgColor} bgColor={bg.bgColor} />
     </div>
 
     <div className={styles.loading}>
@@ -161,13 +188,17 @@ export default function GameView() {
       {currentGame ?
         selectGameComponent(currentGame)
         :
-        <SpotifyView currentlyPlaying={previouslyPlayed} key={currentlyPlaying?.item.id} />
+        <SpotifyView currentlyPlaying={previouslyPlayed} key={currentlyPlaying?.item?.id ?? 'id'} />
       }
     </main>
   </div>
 }
 
 function SpotifyView({ currentlyPlaying }: { currentlyPlaying: CurrentlyPlayingData | null }) {
+  if (!currentlyPlaying) return <div className={styles.notPlaying}>
+    <h1>Begin met iets afspelen op Spotify!</h1>
+  </div>
+
   return <div className={styles.spotify}>
     <div className={styles.image}>
       <img src={currentlyPlaying?.item.album.images[0].url ?? './missing.jpg'} alt="cover" width={320} height={320} />

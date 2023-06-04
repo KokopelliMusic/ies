@@ -65,6 +65,8 @@ export async function getAccessToken(): Promise<string> {
   accessToken = data.access_token
   expiresAt = new Date(Date.now() + (data.expires_in - 300) * 1000)
 
+  saveTokenToDisk(accessToken, expiresAt, refreshToken)
+
   return accessToken
 }
 

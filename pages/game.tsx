@@ -18,7 +18,7 @@ function gameTypeToname(type: GameTypes) {
   }
 }
 
-const REFRESH_INTERVAL = 10 // seconds
+const REFRESH_INTERVAL = 5 // seconds
 const GAME_CHECK_INTERVAL = 5 // seconds
 // This is the minimum amount of checks that have to have passed before a game can start
 const MIN_GAME_INTERVAL = 2 // 60 * 15
@@ -30,6 +30,8 @@ export default function GameView() {
   const [loading, setLoading] = useState<boolean>(true)
 
   const dialogRef = React.useRef<HTMLDialogElement>(null)
+
+  const [songSlide, setSongSlide] = useState<boolean>(false)
 
   // Game logic
   const [currentGame, setCurrentGame] = useState<GameTypes | null>(null)
@@ -123,6 +125,13 @@ export default function GameView() {
         return res.json()
       })
       .then(data => {
+        // When the song has changed, we want to animate the song name
+        console.log({ currentlyPlaying, data })
+        if (currentlyPlaying?.item.id !== data.item.id) {
+          setSongSlide(true)
+          setTimeout(() => setSongSlide(false), 5000)
+        }
+
         setPreviouslyPlayed(currentlyPlaying ?? data)
         setTimeout(() => setPreviouslyPlayed(data), 2500)
         setCurrentlyPlaying(data)
@@ -190,21 +199,31 @@ export default function GameView() {
         <button className={styles.editButton} onClick={() => dialogRef.current?.showModal()}>Bewerken</button>
       </div>
 
-
-      <h1>{currentGame !== null ? gameTypeToname(currentGame) : 'Invictus Entertainment Systeem'}</h1>
+      {currentGame !== null ?
+        <h1 key={currentGame} className={styles.fadeIn}>
+          {gameTypeToname(currentGame)}
+        </h1>
+        :
+        <h1 className={styles.fadeIn}>
+          Invictus Entertainment Systeem
+        </h1>
+      }
 
       <p className={styles.clock}>
         {formatTime(time)}
       </p>
     </div>
 
-    <main className={styles.main}>
-      {currentGame !== null ?
-        selectGameComponent(currentGame)
-        :
+    {currentGame !== null ?
+      <main className={`${styles.main} ${styles.fadeIn}`} key={currentGame}>
+        {selectGameComponent(currentGame)}
+      </main>
+      :
+      <main className={`${styles.main} ${songSlide ? styles.slide : ''}`}>
         <SpotifyView currentlyPlaying={previouslyPlayed} key={currentlyPlaying?.item?.id ?? 'id'} />
-      }
-    </main>
+      </main>
+    }
+
   </div>
 }
 

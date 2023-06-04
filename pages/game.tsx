@@ -29,13 +29,21 @@ export default function GameView() {
   const [players, setPlayers] = useState<string[]>([])
 
 
-  // Setup timers
+  // Setup app
   useEffect(() => {
     const time = localStorage.getItem('time')
     if (time) setTime(parseInt(time))
 
+    loadPlayers()
+
     const interval = setInterval(() => setTime(t => t + 1), 1000)
     return () => clearInterval(interval)
+  }, [])
+
+  // Fetch currently playing
+  useEffect(() => {
+    refreshSpotify()
+      .then(() => setTimeout(() => setLoading(false), 500))
   }, [])
 
   // React to time
@@ -63,11 +71,10 @@ export default function GameView() {
     }
   }, [time])
 
-  // Fetch currently playing
+  // Save and load players
   useEffect(() => {
-    refreshSpotify()
-      .then(() => setTimeout(() => setLoading(false), 500))
-  }, [])
+    savePlayers()
+  }, [players])
 
   /*
    * FUNCTIONS 
@@ -88,6 +95,15 @@ export default function GameView() {
       case GameTypes.ADT_RAD:
         return <AdtRad players={players} time={time} />
     }
+  }
+
+  function savePlayers() {
+    localStorage.setItem('players', players.join(','))
+  }
+
+  function loadPlayers() {
+    const players = localStorage.getItem('players')
+    if (players) setPlayers(players.split(','))
   }
 
   if (loading) return <div className={styles.game}>
@@ -117,7 +133,11 @@ export default function GameView() {
       <br />
       <br />
 
-      <button onClick={() => dialogRef.current?.close()}>Opslaan</button>
+      <div className={styles.buttonGroup}>
+        <button onClick={() => dialogRef.current?.close()}>Opslaan</button>
+        <button onClick={() => dialogRef.current?.close()}>Sluiten</button>
+      </div>
+
     </dialog>
 
     <div className={styles.bg}>

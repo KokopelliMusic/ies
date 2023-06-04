@@ -29,3 +29,12 @@ a:hover {
 * {
 	box-sizing: border-box;
 }
+
+button {
+	all: unset;
+}
+
+button:hover {
+	cursor: pointer;
+	text-decoration: underline;
+}

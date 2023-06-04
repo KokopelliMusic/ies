@@ -1,21 +1,14 @@
 // Next.js API route support: https://nextjs.org/docs/api-routes/introduction
 import type { NextApiRequest, NextApiResponse } from 'next'
+import { getCurrentlyPlaying } from '../../utils/spotify'
 
-function getToken() {
-  const apiServer = process.env.SPOTIFY_AUTH
-  const clientId = process.env.SPOTIFY_CLIENT_ID
+export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+  const currentlyPlaying = await getCurrentlyPlaying()
 
-  if (!apiServer || !clientId) {
-    throw new Error('No SPOTIFY_AUTH or SPOTIFY_CLIENT_ID env variable set')
+  if (!currentlyPlaying) {
+    res.status(204).end()
+    return
   }
 
-
-}
-
-function getCurrentlyPlaying() {
-
-}
-
-export default function handler(req: NextApiRequest, res: NextApiResponse<Data>) {
-  res.status(200).json({ name: 'John Doe' })
+  res.status(200).json(currentlyPlaying)
 }

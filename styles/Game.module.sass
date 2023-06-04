@@ -106,12 +106,20 @@
 
 
 .dialog
+  $padding: 0.5rem
+
   color: white
   border: none
   border-radius: 10px
   background-color: #80b
 
+  div, textarea, h1, button
+    padding-left: $padding
+    padding-right: $padding
+
   .buttonGroup
+    padding-bottom: $padding
+
     display: flex
     flex-direction: row
     justify-content: space-between

@@ -11,6 +11,13 @@ enum GameTypes {
   ADT_RAD,
 }
 
+function gameTypeToname(type: GameTypes) {
+  switch (type) {
+    case GameTypes.ADT_RAD:
+      return 'Adt rad!'
+  }
+}
+
 const REFRESH_INTERVAL = 10 // seconds
 const GAME_CHECK_INTERVAL = 5 // seconds
 // This is the minimum amount of checks that have to have passed before a game can start
@@ -39,7 +46,12 @@ export default function GameView() {
     const time = localStorage.getItem('time')
     if (time) setTime(parseInt(time))
 
-    loadPlayers()
+    const pl = localStorage.getItem('players')
+    if (pl) setPlayers(pl.split(','))
+
+    if (pl.length === 0) {
+      alert('Nog geen spelers ingesteld. Klik rechtsbovenin om spelers toe te voegen.')
+    }
 
     const interval = setInterval(() => setTime(t => t + 1), 1000)
     return () => clearInterval(interval)
@@ -120,7 +132,7 @@ export default function GameView() {
   function selectGameComponent(game: GameTypes) {
     switch (game) {
       case GameTypes.ADT_RAD:
-        return <AdtRad players={players} time={time} />
+        return <AdtRad players={players} time={time} done={gameDone} />
     }
   }
 
@@ -128,9 +140,9 @@ export default function GameView() {
     localStorage.setItem('players', players.join(','))
   }
 
-  function loadPlayers() {
-    const players = localStorage.getItem('players')
-    if (players) setPlayers(players.split(','))
+  function gameDone() {
+    setCurrentGame(null)
+    setTimeSinceLastGame(0)
   }
 
   if (loading) return <div className={styles.game}>
@@ -155,7 +167,9 @@ export default function GameView() {
         </ul>
       </div>
 
-      <textarea value={players} onChange={(e) => setPlayers(e.target.value.split(',').map(p => p.trim()))} />
+      <div>
+        <textarea value={players} onChange={(e) => setPlayers(e.target.value.split(',').map(p => p.trim()))} />
+      </div>
 
       <br />
       <br />
@@ -177,7 +191,7 @@ export default function GameView() {
       </div>
 
 
-      <h1>Invictus Entertainment Systeem</h1>
+      <h1>{currentGame !== null ? gameTypeToname(currentGame) : 'Invictus Entertainment Systeem'}</h1>
 
       <p className={styles.clock}>
         {formatTime(time)}
@@ -185,7 +199,7 @@ export default function GameView() {
     </div>
 
     <main className={styles.main}>
-      {currentGame ?
+      {currentGame !== null ?
         selectGameComponent(currentGame)
         :
         <SpotifyView currentlyPlaying={previouslyPlayed} key={currentlyPlaying?.item?.id ?? 'id'} />

@@ -1,11 +1,12 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useLayoutEffect, useState } from 'react'
 import styles from '../styles/Game.module.sass'
 import { formatTime } from '../utils/clock'
 import Image from 'next/image'
 // import Background from '../public/background.svg'
 import { Background } from '../components/background'
 import { AdtRad } from '../components/games/adt-rad'
-import { CSSTransition } from 'react-transition-group'
+import dynamic from 'next/dynamic'
+
 
 enum GameTypes {
   ADT_RAD,
@@ -25,7 +26,9 @@ const MIN_GAME_INTERVAL = 2 // 60 * 15
 const DEFAULT_GAME_CHANCE = 0.2
 
 
-export default function GameView() {
+
+
+function GameView() {
   const [time, setTime] = useState<number>(0)
   const [loading, setLoading] = useState<boolean>(true)
 
@@ -49,11 +52,14 @@ export default function GameView() {
     if (time) setTime(parseInt(time))
 
     const pl = localStorage.getItem('players')
-    if (pl) setPlayers(pl.split(','))
-
-    if (pl.length === 0) {
-      alert('Nog geen spelers ingesteld. Klik rechtsbovenin om spelers toe te voegen.')
+    if (pl) {
+      setPlayers(pl.split(','))
     }
+
+    if (players.length === 0 && (pl && pl.length === 0)) {
+      alert('Nog geen spelers ingesteld. Klik linksbovenin om spelers toe te voegen.')
+    }
+
 
     const interval = setInterval(() => setTime(t => t + 1), 1000)
     return () => clearInterval(interval)
@@ -126,7 +132,7 @@ export default function GameView() {
       })
       .then(data => {
         // When the song has changed, we want to animate the song name
-        console.log({ currentlyPlaying, data })
+        if (!data || !data.item) return
         if (currentlyPlaying?.item.id !== data.item.id) {
           setSongSlide(true)
           setTimeout(() => setSongSlide(false), 5000)
@@ -200,7 +206,7 @@ export default function GameView() {
       </div>
 
       {currentGame !== null ?
-        <h1 key={currentGame} className={styles.fadeIn}>
+        <h1 key={"" + currentGame} className={styles.fadeIn}>
           {gameTypeToname(currentGame)}
         </h1>
         :
@@ -243,3 +249,5 @@ function SpotifyView({ currentlyPlaying }: { currentlyPlaying: CurrentlyPlayingD
     </div>
   </div>
 }
+
+export default dynamic(() => Promise.resolve(GameView), { ssr: false })

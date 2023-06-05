@@ -1,7 +1,12 @@
+import { useEffect } from 'react'
 import styles from '../styles/Spotify.module.sass'
 import { getSpotifyLoginLink } from '../utils/spotify'
 
 function LoginWithSpotify() {
+
+  useEffect(() => {
+    localStorage.clear()
+  }, [])
 
   return <div className={styles.spotify}>
     <h1>Invictus Entertainment Systeem</h1>

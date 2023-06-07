@@ -4,20 +4,14 @@ import { useSelector } from 'react-redux'
 import { selectPlayerState } from '../../store/PlayerSlice'
 import { selectSettingsState } from '../../store/SettingsSlice'
 import { getRandomPunishmentSecondPerson } from '../../utils/punish'
+import { usePlayers } from '../usePlayers'
 
 export function SnakeEyes(props: GameProps) {
   const beginTime = useRef<number>(props.time)
-  const players = useSelector(selectPlayerState)
-  const punishment = useRef<string>(getRandomPunishmentSecondPerson())
   const settings = useSelector(selectSettingsState)
 
-  const [deLul, isDeLul] = useState<string>('')
-
-  useEffect(() => {
-    // get a random player
-    const randomPlayer = players[Math.floor(Math.random() * players.length)]
-    isDeLul(randomPlayer)
-  }, [])
+  const punishment = useRef<string>(getRandomPunishmentSecondPerson())
+  const deLul = useRef(usePlayers(1))
 
   useEffect(() => {
     // After 60 seconds, the game is done
@@ -29,7 +23,7 @@ export function SnakeEyes(props: GameProps) {
 
 
   return <div className={styles.main}>
-    <h1><span>{deLul}</span></h1>
+    <h1><span>{deLul.current}</span></h1>
 
     <h2>Niemand mag jou meer aankijken tot het volgende spel!</h2>
 

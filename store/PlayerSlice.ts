@@ -18,7 +18,7 @@ export const playerSlice = createSlice({
     },
     editPlayerName(state, action) {
       state[action.payload.id] = action.payload.name;
-    }
+    },
   },
 
   // Special reducer for hydrating the state. Special case for next-redux-wrapper

@@ -18,6 +18,9 @@ import { Bussen } from '../components/games/bussen'
 import { DeepFryFrenzy } from '../components/games/deep-fry-frenzy'
 import { NoSocks } from '../components/games/no-socks'
 import { ClothingCheck } from '../components/games/clothing-check'
+import { BeerMile } from '../components/games/beer-mile'
+import { StressPong } from '../components/games/stress-pong'
+import { BeerRelay } from '../components/games/beer-relay'
 
 
 enum GameTypes {
@@ -31,6 +34,9 @@ enum GameTypes {
   DeepFryFrenzy,
   NoSocks,
   ClothingCheck,
+  BeerMile,
+  StressPong,
+  BeerRelay,
 }
 
 const REFRESH_INTERVAL = 5 // seconds
@@ -57,7 +63,7 @@ function GameView() {
   const [songSlide, setSongSlide] = useState<boolean>(false)
 
   // Game logic
-  const [currentGame, setCurrentGame] = useState<GameTypes | null>(GameTypes.ClothingCheck)
+  const [currentGame, setCurrentGame] = useState<GameTypes | null>(GameTypes.BeerRelay)
   const [currentlyPlaying, setCurrentlyPlaying] = useState<CurrentlyPlayingData | null>(null)
   const [previouslyPlayed, setPreviouslyPlayed] = useState<CurrentlyPlayingData | null>(null)
   const [timeSinceLastGame, setTimeSinceLastGame] = useState<number>(0)
@@ -173,6 +179,12 @@ function GameView() {
         return 'Sokkencheck!'
       case GameTypes.ClothingCheck:
         return 'Kledingcheck!'
+      case GameTypes.BeerMile:
+        return 'Beer mile!'
+      case GameTypes.StressPong:
+        return 'Stress pong!'
+      case GameTypes.BeerRelay:
+        return 'Bierestafette!'
 
       default:
         return 'Onbekend spel'
@@ -201,6 +213,12 @@ function GameView() {
         return <NoSocks time={time} done={gameDone} />
       case GameTypes.ClothingCheck:
         return <ClothingCheck time={time} done={gameDone} />
+      case GameTypes.BeerMile:
+        return <BeerMile time={time} done={gameDone} />
+      case GameTypes.StressPong:
+        return <StressPong time={time} done={gameDone} />
+      case GameTypes.BeerRelay:
+        return <BeerRelay time={time} done={gameDone} />
 
       default:
         return <div>Onbekend spel</div>

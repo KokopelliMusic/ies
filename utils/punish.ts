@@ -17,12 +17,25 @@ const punishments2 = [
   'trekt diegene een bak',
 ]
 
+const punishments3 = [
+  'neemt 2 slokken',
+  'neemt 4 slokken',
+  'doet een shotje',
+  'neemt 6 slokken',
+  'neemt 8 slokken',
+  'trekt een bak',
+]
+
 export function getRandomPunishment(): string {
   return selectRandomElement(punishments);
 }
 
 export function getRandomPunishmentSecondPerson(): string {
   return selectRandomElement(punishments2);
+}
+
+export function getRandomPunishmentThirdPerson(): string {
+  return selectRandomElement(punishments3);
 }
 
 

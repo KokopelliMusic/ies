@@ -16,6 +16,8 @@ import { SayNoEvil } from '../components/games/say-no-evil'
 import { SnakeEyes } from '../components/games/snake-eyes'
 import { Bussen } from '../components/games/bussen'
 import { DeepFryFrenzy } from '../components/games/deep-fry-frenzy'
+import { NoSocks } from '../components/games/no-socks'
+import { ClothingCheck } from '../components/games/clothing-check'
 
 
 enum GameTypes {
@@ -27,6 +29,8 @@ enum GameTypes {
   SnakeEyes,
   Bussen,
   DeepFryFrenzy,
+  NoSocks,
+  ClothingCheck,
 }
 
 const REFRESH_INTERVAL = 5 // seconds
@@ -53,7 +57,7 @@ function GameView() {
   const [songSlide, setSongSlide] = useState<boolean>(false)
 
   // Game logic
-  const [currentGame, setCurrentGame] = useState<GameTypes | null>(GameTypes.DeepFryFrenzy)
+  const [currentGame, setCurrentGame] = useState<GameTypes | null>(GameTypes.ClothingCheck)
   const [currentlyPlaying, setCurrentlyPlaying] = useState<CurrentlyPlayingData | null>(null)
   const [previouslyPlayed, setPreviouslyPlayed] = useState<CurrentlyPlayingData | null>(null)
   const [timeSinceLastGame, setTimeSinceLastGame] = useState<number>(0)
@@ -165,6 +169,13 @@ function GameView() {
         return 'Bussen!'
       case GameTypes.DeepFryFrenzy:
         return 'Frituur, huuuuuuuuuuuuuuuuuuuuuuuuuuuuu'
+      case GameTypes.NoSocks:
+        return 'Sokkencheck!'
+      case GameTypes.ClothingCheck:
+        return 'Kledingcheck!'
+
+      default:
+        return 'Onbekend spel'
     }
   }
 
@@ -186,6 +197,13 @@ function GameView() {
         return <Bussen time={time} done={gameDone} />
       case GameTypes.DeepFryFrenzy:
         return <DeepFryFrenzy time={time} done={gameDone} />
+      case GameTypes.NoSocks:
+        return <NoSocks time={time} done={gameDone} />
+      case GameTypes.ClothingCheck:
+        return <ClothingCheck time={time} done={gameDone} />
+
+      default:
+        return <div>Onbekend spel</div>
     }
   }
 

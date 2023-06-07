@@ -3,20 +3,30 @@ import styles from '../styles/Game.module.sass'
 import { formatTime } from '../utils/clock'
 import Image from 'next/image'
 // import Background from '../public/background.svg'
-import { Background } from '../components/background'
+import Background from '../components/background'
 import { AdtRad } from '../components/games/adt-rad'
 import dynamic from 'next/dynamic'
+import { DuctTapeAlarm } from '../components/games/duct-tape-alarm'
+import { useDispatch, useSelector } from 'react-redux'
+import { addPlayer, editPlayerName, selectPlayerState } from '../store/PlayerSlice'
+import { removePlayer } from '../store/PlayerSlice'
+import { DrinkingBuddies } from '../components/games/drinking-buddies'
+import { LastToLeave } from '../components/games/last-to-leave'
+import { SayNoEvil } from '../components/games/say-no-evil'
+import { SnakeEyes } from '../components/games/snake-eyes'
+import { Bussen } from '../components/games/bussen'
+import { DeepFryFrenzy } from '../components/games/deep-fry-frenzy'
 
 
 enum GameTypes {
-  ADT_RAD,
-}
-
-function gameTypeToname(type: GameTypes) {
-  switch (type) {
-    case GameTypes.ADT_RAD:
-      return 'Adt rad!'
-  }
+  AdtRad,
+  DuctTapeAlarm,
+  DrinkingBuddies,
+  LastToLeave,
+  SayNoEvil,
+  SnakeEyes,
+  Bussen,
+  DeepFryFrenzy,
 }
 
 const REFRESH_INTERVAL = 5 // seconds
@@ -25,40 +35,34 @@ const GAME_CHECK_INTERVAL = 5 // seconds
 const MIN_GAME_INTERVAL = 2 // 60 * 15
 const DEFAULT_GAME_CHANCE = 0.2
 
+const DEFAULT_GAME_ON_SCREEN = 90
 
 
 
 function GameView() {
+  // Redux
+  const players = useSelector(selectPlayerState)
+  const dispatch = useDispatch()
+
   const [time, setTime] = useState<number>(0)
   const [loading, setLoading] = useState<boolean>(true)
+  const [hideBg, setHideBg] = useState<boolean>(true)
 
   const dialogRef = React.useRef<HTMLDialogElement>(null)
 
   const [songSlide, setSongSlide] = useState<boolean>(false)
 
   // Game logic
-  const [currentGame, setCurrentGame] = useState<GameTypes | null>(null)
+  const [currentGame, setCurrentGame] = useState<GameTypes | null>(GameTypes.DeepFryFrenzy)
   const [currentlyPlaying, setCurrentlyPlaying] = useState<CurrentlyPlayingData | null>(null)
   const [previouslyPlayed, setPreviouslyPlayed] = useState<CurrentlyPlayingData | null>(null)
   const [timeSinceLastGame, setTimeSinceLastGame] = useState<number>(0)
   const [gameChance, setGameChance] = useState<number>(DEFAULT_GAME_CHANCE)
-  const [players, setPlayers] = useState<string[]>([])
-
-  const [bg, setBg] = useState<{ fgColor: string, bgColor: string }>({ fgColor: '#80b', bgColor: '#001220' })
 
   // Setup app
   useEffect(() => {
     const time = localStorage.getItem('time')
     if (time) setTime(parseInt(time))
-
-    const pl = localStorage.getItem('players')
-    if (pl) {
-      setPlayers(pl.split(','))
-    }
-
-    if (players.length === 0 && (pl && pl.length === 0)) {
-      alert('Nog geen spelers ingesteld. Klik linksbovenin om spelers toe te voegen.')
-    }
 
 
     const interval = setInterval(() => setTime(t => t + 1), 1000)
@@ -99,16 +103,11 @@ function GameView() {
 
         // Start a game!
         const game = Math.floor(Math.random() * Object.keys(GameTypes).length / 2)
-        console.log('Game time! We are going to play: ' + game)
+        console.log('Game time! We are going to play: ' + gameTypeToname(game))
         setCurrentGame(game)
       }
     }
   }, [time])
-
-  // Save and load players
-  useEffect(() => {
-    savePlayers()
-  }, [players])
 
   // A new game starts!
   useEffect(() => {
@@ -117,7 +116,11 @@ function GameView() {
       return
     }
 
-    setBg({ fgColor: bg.bgColor, bgColor: bg.fgColor })
+
+    for (let i = 0; i < 4000; i += 1000) {
+      setTimeout(() => setHideBg(false), i)
+      setTimeout(() => setHideBg(true), i + 500)
+    }
   }, [currentGame])
 
   /*
@@ -144,15 +147,46 @@ function GameView() {
       })
   }
 
-  function selectGameComponent(game: GameTypes) {
-    switch (game) {
-      case GameTypes.ADT_RAD:
-        return <AdtRad players={players} time={time} done={gameDone} />
+  function gameTypeToname(type: GameTypes) {
+    switch (type) {
+      case GameTypes.AdtRad:
+        return 'Adt rad!'
+      case GameTypes.DuctTapeAlarm:
+        return 'Duct tape alarm!'
+      case GameTypes.DrinkingBuddies:
+        return 'Drinking buddies!'
+      case GameTypes.LastToLeave:
+        return 'NL-Alert'
+      case GameTypes.SayNoEvil:
+        return 'Say no evil!'
+      case GameTypes.SnakeEyes:
+        return 'Snake eyes!'
+      case GameTypes.Bussen:
+        return 'Bussen!'
+      case GameTypes.DeepFryFrenzy:
+        return 'Frituur, huuuuuuuuuuuuuuuuuuuuuuuuuuuuu'
     }
   }
 
-  function savePlayers() {
-    localStorage.setItem('players', players.join(','))
+  function selectGameComponent(game: GameTypes) {
+    switch (game) {
+      case GameTypes.AdtRad:
+        return <AdtRad time={time} done={gameDone} />
+      case GameTypes.DuctTapeAlarm:
+        return <DuctTapeAlarm time={time} done={gameDone} />
+      case GameTypes.DrinkingBuddies:
+        return <DrinkingBuddies time={time} done={gameDone} />
+      case GameTypes.LastToLeave:
+        return <LastToLeave time={time} done={gameDone} />
+      case GameTypes.SayNoEvil:
+        return <SayNoEvil time={time} done={gameDone} />
+      case GameTypes.SnakeEyes:
+        return <SnakeEyes time={time} done={gameDone} />
+      case GameTypes.Bussen:
+        return <Bussen time={time} done={gameDone} />
+      case GameTypes.DeepFryFrenzy:
+        return <DeepFryFrenzy time={time} done={gameDone} />
+    }
   }
 
   function gameDone() {
@@ -162,7 +196,7 @@ function GameView() {
 
   if (loading) return <div className={styles.game}>
     <div className={styles.bg}>
-      <Background fgColor={bg.fgColor} bgColor={bg.bgColor} />
+      <Background />
     </div>
 
     <div className={styles.loading}>
@@ -172,29 +206,11 @@ function GameView() {
   </div>
 
   return <div className={styles.game}>
-    <dialog ref={dialogRef} className={styles.dialog}>
-      <h1>Bewerk spelers</h1>
-      <div>
-        <p>Voer hieronder de spelers in, gescheiden door een komma.</p>
-        <p>Huidige spelers:</p>
-        <ul>
-          {players.map(player => <li key={player}>{player}</li>)}
-        </ul>
-      </div>
+    <Dialog dialogRef={dialogRef} />
 
-      <div>
-        <textarea value={players} onChange={(e) => setPlayers(e.target.value.split(',').map(p => p.trim()))} />
-      </div>
-
-      <br />
-      <br />
-
-      <div className={styles.buttonGroup}>
-        <button onClick={() => dialogRef.current?.close()}>Opslaan</button>
-        <button onClick={() => dialogRef.current?.close()}>Sluiten</button>
-      </div>
-
-    </dialog>
+    <div className={`${styles.notification} ${styles.bg}`} hidden={hideBg}>
+      <Background fgColor='red' />
+    </div>
 
     <div className={styles.bg}>
       <Background />
@@ -206,7 +222,7 @@ function GameView() {
       </div>
 
       {currentGame !== null ?
-        <h1 key={"" + currentGame} className={styles.fadeIn}>
+        <h1 className={styles.fadeIn + ' ' + styles.title}>
           {gameTypeToname(currentGame)}
         </h1>
         :
@@ -225,12 +241,40 @@ function GameView() {
         {selectGameComponent(currentGame)}
       </main>
       :
-      <main className={`${styles.main} ${songSlide ? styles.slide : ''}`}>
+      <main className={`${styles.main} ${styles.fadeIn} ${songSlide ? styles.slide : ''}`}>
         <SpotifyView currentlyPlaying={previouslyPlayed} key={currentlyPlaying?.item?.id ?? 'id'} />
       </main>
     }
 
   </div>
+}
+
+function Dialog({ dialogRef }: { dialogRef: React.RefObject<HTMLDialogElement> }) {
+  // Redux
+  const players = useSelector(selectPlayerState)
+  const dispatch = useDispatch()
+
+  return <dialog ref={dialogRef} className={styles.dialog}>
+    <h1>Bewerk spelers</h1>
+    <div>
+      <p>Voer hieronder de spelers in.</p>
+      {players.map((player, idx) => <div key={idx}>
+        <input type="text" defaultValue={player} onChange={e => dispatch(editPlayerName({ id: idx, name: e.target.value }))} />
+        <button onClick={() => dispatch(removePlayer(idx))}>x</button>
+      </div>)}
+
+      <button onClick={() => dispatch(addPlayer(""))}>+</button>
+    </div>
+
+    <br />
+    <br />
+
+    <div className={styles.buttonGroup}>
+      <button onClick={() => dialogRef.current?.close()}>Sluiten</button>
+      <button onClick={() => dialogRef.current?.close()}>Opslaan</button>
+    </div>
+
+  </dialog>
 }
 
 function SpotifyView({ currentlyPlaying }: { currentlyPlaying: CurrentlyPlayingData | null }) {

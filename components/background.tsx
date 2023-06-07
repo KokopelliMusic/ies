@@ -1,4 +1,15 @@
-export function Background({ bgColor = '#001220', fgColor = '#80b' }) {
+import { useEffect } from 'react'
+import { useForceUpdate } from './useForceUpdate'
+import dynamic from 'next/dynamic'
+
+function Background({ bgColor = '#001220', fgColor = '#80b' }) {
+
+  const update = useForceUpdate()
+
+  useEffect(() => {
+    update()
+  }, [bgColor, fgColor])
+
   return <svg id="visual" viewBox="0 0 1920 1080" width="1920" height="1080" xmlns="http://www.w3.org/2000/svg" xmlnsXlink="http://www.w3.org/1999/xlink" version="1.1">
     <rect x="0" y="0" width="1920" height="1080" fill={bgColor}></rect>
     <g fill={fgColor}>
@@ -11,3 +22,7 @@ export function Background({ bgColor = '#001220', fgColor = '#80b' }) {
     </g>
   </svg>
 }
+
+export default dynamic(() => Promise.resolve(Background), {
+  ssr: false,
+})

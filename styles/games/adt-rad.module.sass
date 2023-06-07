@@ -11,13 +11,15 @@
   z-index: 1
   position: absolute
 
-  background-color: #80b
+  background-image: url('/grolsch.avif')
 
   width: 2rem
   height: 5rem
 
-  top: 40%
+  top: 45%
   left: 50%
+
+  transform: translate(-50%, -50%) rotate(180deg)
 
 .wheel
   display: flex
@@ -26,8 +28,6 @@
   justify-content: center
 
   border: 0.5rem solid black
-
-
 
 .player
   height: 100%
@@ -41,10 +41,10 @@
     font-size: 3rem
 
 .player:nth-child(odd)
-  background-color: #f00
+  background-color: var(--accent-color)
 
 .player:nth-child(even)
-  background-color: #0f0
+  background-color: var(--tertiary-color)
 
 
 .spin

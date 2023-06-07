@@ -1,5 +1,13 @@
 @import url('https://fonts.googleapis.com/css2?family=Geologica:wght@100;200;300;400;500;600;700;800;900&family=Open+Sans:wght@500&display=swap');
 
+:root {
+	--primary-color: #80b;
+	--secondary-color: #96f255;
+	--tertiary-color: #db9e42;
+	--quaternary-color: #f94bc6;
+	--accent-color: #42b8db;
+}
+
 html,
 body {
 	padding: 0;

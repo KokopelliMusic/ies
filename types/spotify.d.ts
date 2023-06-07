@@ -25,8 +25,6 @@ type SpotifyAlbum = {
 }
 
 type GameProps = {
-  players: string[]
   time: number
-
   done: () => void
 }

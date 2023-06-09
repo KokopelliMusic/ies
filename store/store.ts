@@ -3,12 +3,14 @@ import { playerSlice } from './PlayerSlice'
 import { createWrapper } from 'next-redux-wrapper'
 import { save, load } from "redux-localstorage-simple"
 import { settingsSlice } from './SettingsSlice'
+import { enabledGamesSlice } from './EnabledGamesSlice'
 
 const makeStore = () =>
 	configureStore({
 		reducer: {
 			[playerSlice.name]: playerSlice.reducer,
 			[settingsSlice.name]: settingsSlice.reducer,
+			[enabledGamesSlice.name]: enabledGamesSlice.reducer,
 		},
 		devTools: true,
 

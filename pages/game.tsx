@@ -21,38 +21,19 @@ import { ClothingCheck } from '../components/games/clothing-check'
 import { BeerMile } from '../components/games/beer-mile'
 import { StressPong } from '../components/games/stress-pong'
 import { BeerRelay } from '../components/games/beer-relay'
-
-
-enum GameTypes {
-  AdtRad,
-  DuctTapeAlarm,
-  DrinkingBuddies,
-  LastToLeave,
-  SayNoEvil,
-  SnakeEyes,
-  Bussen,
-  DeepFryFrenzy,
-  NoSocks,
-  ClothingCheck,
-  BeerMile,
-  StressPong,
-  BeerRelay,
-}
+import { GameTypes, gameTypeToname, getAmountOfGames } from '../types/game'
+import { changeGame, selectEnabledGamesState } from '../store/EnabledGamesSlice'
 
 const REFRESH_INTERVAL = 5 // seconds
-const GAME_CHECK_INTERVAL = 5 // seconds
+const GAME_CHECK_INTERVAL = 60 // seconds
 // This is the minimum amount of checks that have to have passed before a game can start
-const MIN_GAME_INTERVAL = 2 // 60 * 15
+const MIN_GAME_INTERVAL = 3
 const DEFAULT_GAME_CHANCE = 0.2
-
-const DEFAULT_GAME_ON_SCREEN = 90
 
 
 
 function GameView() {
-  // Redux
-  const players = useSelector(selectPlayerState)
-  const dispatch = useDispatch()
+  const enabledGames = useSelector(selectEnabledGamesState)
 
   const [time, setTime] = useState<number>(0)
   const [loading, setLoading] = useState<boolean>(true)
@@ -63,7 +44,7 @@ function GameView() {
   const [songSlide, setSongSlide] = useState<boolean>(false)
 
   // Game logic
-  const [currentGame, setCurrentGame] = useState<GameTypes | null>(GameTypes.BeerRelay)
+  const [currentGame, setCurrentGame] = useState<GameTypes | null>(null)
   const [currentlyPlaying, setCurrentlyPlaying] = useState<CurrentlyPlayingData | null>(null)
   const [previouslyPlayed, setPreviouslyPlayed] = useState<CurrentlyPlayingData | null>(null)
   const [timeSinceLastGame, setTimeSinceLastGame] = useState<number>(0)
@@ -112,7 +93,7 @@ function GameView() {
         setGameChance(DEFAULT_GAME_CHANCE)
 
         // Start a game!
-        const game = Math.floor(Math.random() * Object.keys(GameTypes).length / 2)
+        const game = enabledGames[Math.floor(Math.random() * enabledGames.length / 2)]
         console.log('Game time! We are going to play: ' + gameTypeToname(game))
         setCurrentGame(game)
       }
@@ -155,40 +136,6 @@ function GameView() {
         setTimeout(() => setPreviouslyPlayed(data), 2500)
         setCurrentlyPlaying(data)
       })
-  }
-
-  function gameTypeToname(type: GameTypes) {
-    switch (type) {
-      case GameTypes.AdtRad:
-        return 'Adt rad!'
-      case GameTypes.DuctTapeAlarm:
-        return 'Duct tape alarm!'
-      case GameTypes.DrinkingBuddies:
-        return 'Drinking buddies!'
-      case GameTypes.LastToLeave:
-        return 'NL-Alert'
-      case GameTypes.SayNoEvil:
-        return 'Say no evil!'
-      case GameTypes.SnakeEyes:
-        return 'Snake eyes!'
-      case GameTypes.Bussen:
-        return 'Bussen!'
-      case GameTypes.DeepFryFrenzy:
-        return 'Frituur, huuuuuuuuuuuuuuuuuuuuuuuuuuuuu'
-      case GameTypes.NoSocks:
-        return 'Sokkencheck!'
-      case GameTypes.ClothingCheck:
-        return 'Kledingcheck!'
-      case GameTypes.BeerMile:
-        return 'Beer mile!'
-      case GameTypes.StressPong:
-        return 'Stress pong!'
-      case GameTypes.BeerRelay:
-        return 'Bierestafette!'
-
-      default:
-        return 'Onbekend spel'
-    }
   }
 
   function selectGameComponent(game: GameTypes) {
@@ -254,7 +201,7 @@ function GameView() {
 
     <div className={styles.header}>
       <div className={styles.clock}>
-        <button className={styles.editButton} onClick={() => dialogRef.current?.showModal()}>Bewerken</button>
+        <button className={styles.editButton} onClick={() => dialogRef.current?.showModal()}>Instellingen</button>
       </div>
 
       {currentGame !== null ?
@@ -272,34 +219,43 @@ function GameView() {
       </p>
     </div>
 
-    {currentGame !== null ?
-      <main className={`${styles.main} ${styles.fadeIn}`} key={currentGame}>
-        {selectGameComponent(currentGame)}
-      </main>
-      :
-      <main className={`${styles.main} ${styles.fadeIn} ${songSlide ? styles.slide : ''}`}>
-        <SpotifyView currentlyPlaying={previouslyPlayed} key={currentlyPlaying?.item?.id ?? 'id'} />
-      </main>
-    }
-
+    <main className={`${styles.main} ${styles.fadeIn}`} key={currentGame !== null ? -1 : currentGame}>
+      {currentGame !== null ?
+        selectGameComponent(currentGame)
+        :
+        <div className={`${songSlide ? styles.slide : ''} ${styles.spotifyContainer}`}>
+          <SpotifyView currentlyPlaying={previouslyPlayed} key={currentlyPlaying?.item?.id ?? 'id'} />
+        </div>
+      }
+    </main>
   </div>
 }
 
 function Dialog({ dialogRef }: { dialogRef: React.RefObject<HTMLDialogElement> }) {
   // Redux
   const players = useSelector(selectPlayerState)
+  const enabledGames = useSelector(selectEnabledGamesState)
   const dispatch = useDispatch()
 
   return <dialog ref={dialogRef} className={styles.dialog}>
     <h1>Bewerk spelers</h1>
-    <div>
-      <p>Voer hieronder de spelers in.</p>
-      {players.map((player, idx) => <div key={idx}>
-        <input type="text" defaultValue={player} onChange={e => dispatch(editPlayerName({ id: idx, name: e.target.value }))} />
-        <button onClick={() => dispatch(removePlayer(idx))}>x</button>
-      </div>)}
+    <div className={styles.dialogTable}>
+      <div>
+        <p>Voer hieronder de spelers in.</p>
+        {players.map((player, idx) => <div key={idx}>
+          <input type="text" defaultValue={player} onChange={e => dispatch(editPlayerName({ id: idx, name: e.target.value }))} />
+          <button onClick={() => dispatch(removePlayer(idx))}>x</button>
+        </div>)}
+        <button onClick={() => dispatch(addPlayer(""))}>+</button>
+      </div>
 
-      <button onClick={() => dispatch(addPlayer(""))}>+</button>
+      <div className={styles.dialogEnabledGames}>
+        <p>Welke spelletjes kunnen voorkomen?</p>
+        {Array.from(Array(Object.keys(GameTypes).length / 2).keys()).map((game, idx) => <div key={idx}>
+          <input type="checkbox" defaultChecked={true} onChange={e => dispatch(changeGame(game))} />
+          <label>{gameTypeToname(game)}</label>
+        </div>)}
+      </div>
     </div>
 
     <br />

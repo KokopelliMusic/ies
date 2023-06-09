@@ -8,7 +8,7 @@ interface SettingsState {
 
 // Initial state
 const initialState: SettingsState = {
-  timeOnScreen: 60
+  timeOnScreen: 60,
 }
 
 // Actual Slice
@@ -18,7 +18,8 @@ export const settingsSlice = createSlice({
   reducers: {
     editTimeOnScreen(state, action) {
       state.timeOnScreen = action.payload
-    }
+    },
+
   },
 
   // Special reducer for hydrating the state. Special case for next-redux-wrapper

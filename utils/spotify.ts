@@ -42,7 +42,7 @@ export async function getAccessToken(): Promise<string> {
 
   // Otherwise, we have to refresh the token 
 
-  const clientId = process.env.SPOTIFY_CLIENT_ID
+  const clientId = process.env.NEXT_PUBLIC_SPOTIFY_CLIENT_ID
   const clientSecret = process.env.SPOTIFY_CLIENT_SECRET
 
   if (!clientId || !clientSecret) {
@@ -71,7 +71,7 @@ export async function getAccessToken(): Promise<string> {
 }
 
 export function getSpotifyLoginLink(): string {
-  return `https://accounts.spotify.com/authorize?client_id=${process.env.SPOTIFY_CLIENT_ID}&response_type=code&redirect_uri=${process.env.SPOTIFY_REDIRECT_URI}&scope=user-read-playback-state,user-modify-playback-state,user-read-currently-playing`
+  return `https://accounts.spotify.com/authorize?client_id=${process.env.NEXT_PUBLIC_SPOTIFY_CLIENT_ID}&response_type=code&redirect_uri=${process.env.NEXT_PUBLIC_SPOTIFY_REDIRECT_URI}&scope=user-read-playback-state,user-modify-playback-state,user-read-currently-playing`
 }
 
 export async function requestAccessToken(code: string) {
@@ -79,9 +79,9 @@ export async function requestAccessToken(code: string) {
     method: 'POST',
     headers: {
       'Content-Type': 'application/x-www-form-urlencoded',
-      'Authorization': `Basic ${Buffer.from(`${process.env.SPOTIFY_CLIENT_ID}:${process.env.SPOTIFY_CLIENT_SECRET}`).toString('base64')}`
+      'Authorization': `Basic ${Buffer.from(`${process.env.NEXT_PUBLIC_SPOTIFY_CLIENT_ID}:${process.env.SPOTIFY_CLIENT_SECRET}`).toString('base64')}`
     },
-    body: `grant_type=authorization_code&code=${code}&redirect_uri=${process.env.SPOTIFY_REDIRECT_URI}`
+    body: `grant_type=authorization_code&code=${code}&redirect_uri=${process.env.NEXT_PUBLIC_SPOTIFY_REDIRECT_URI}`
   })
     .then(res => res.json())
     .then(res => {

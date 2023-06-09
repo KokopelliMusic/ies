@@ -1,6 +1,7 @@
 import { useEffect } from 'react'
 import styles from '../styles/Spotify.module.sass'
 import { getSpotifyLoginLink } from '../utils/spotify'
+import dynamic from 'next/dynamic'
 
 function LoginWithSpotify() {
 
@@ -17,4 +18,6 @@ function LoginWithSpotify() {
   </div>
 }
 
-export default LoginWithSpotify
+export default dynamic(() => Promise.resolve(LoginWithSpotify), {
+  ssr: true
+})

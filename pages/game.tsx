@@ -23,6 +23,8 @@ import { StressPong } from '../components/games/stress-pong'
 import { BeerRelay } from '../components/games/beer-relay'
 import { GameTypes, gameTypeToname, getAmountOfGames } from '../types/game'
 import { changeGame, selectEnabledGamesState } from '../store/EnabledGamesSlice'
+import { Barman } from '../components/games/barman'
+import { Stoelendans } from '../components/games/stoelendans'
 
 const REFRESH_INTERVAL = 5 // seconds
 const GAME_CHECK_INTERVAL = 60 // seconds
@@ -166,6 +168,10 @@ function GameView() {
         return <StressPong time={time} done={gameDone} />
       case GameTypes.BeerRelay:
         return <BeerRelay time={time} done={gameDone} />
+      case GameTypes.Barman:
+        return <Barman time={time} done={gameDone} />
+      case GameTypes.Stoelendans:
+        return <Stoelendans time={time} done={gameDone} />
 
       default:
         return <div>Onbekend spel</div>

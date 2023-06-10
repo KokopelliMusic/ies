@@ -12,6 +12,8 @@ export enum GameTypes {
   BeerMile,
   StressPong,
   BeerRelay,
+  Barman,
+  Stoelendans,
 }
 
 export function gameTypeToname(type: GameTypes) {
@@ -42,6 +44,10 @@ export function gameTypeToname(type: GameTypes) {
       return 'Stress pong!'
     case GameTypes.BeerRelay:
       return 'Bierestafette!'
+    case GameTypes.Barman:
+      return 'Barman!'
+    case GameTypes.Stoelendans:
+      return 'Stoelendans!'
 
     default:
       return 'Onbekend spel'

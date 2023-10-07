@@ -17,7 +17,7 @@ const REFRESH_INTERVAL = 10 // seconds
 
 // Every x seconds we either play a game, or increase the chance that a game happens
 // const GAME_CHECK_INTERVAL = 60 // seconds
-const GAME_CHECK_INTERVAL = 10 // seconds
+const GAME_CHECK_INTERVAL = 60 // seconds
 
 // This is the minimum amount of cycles that have to have passed before a game can start
 const MIN_GAME_INTERVAL = 1
@@ -30,7 +30,7 @@ const DEFAULT_GAME_CHANCE = 1
 
 
 // How many cycles games last on screen
-// So 6 would mean 60 seconds
+// So 1 would mean 60 seconds
 const GAME_DURATION = 1
 
 

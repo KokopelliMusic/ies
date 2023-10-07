@@ -8,6 +8,7 @@ export const PlayerNames = atom((get) => get(Players).map(p => p.name))
 export const PlayerRanking = atom((get) => {
   const ps = get(Players)
 
-  // Now sort the player array by timesSelected
-  return ps.sort((a, b) => a.timesSelected - b.timesSelected)
+  // Sort the players randomly, where lower timesSelected has more chance of ending up
+  // at the beginning of the array
+  return ps.sort((a, b) => Math.random() * (a.timesSelected - b.timesSelected))
 })

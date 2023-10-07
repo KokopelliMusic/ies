@@ -27,7 +27,8 @@ export default function Home() {
       return {
         name,
         id,
-        active: true
+        active: true,
+        timesSelected: 0
       }
     }))
 

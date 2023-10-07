@@ -23,10 +23,15 @@ export const AVAILABLE_GAMES: Game[] = [
   g({
     name: 'Sokken check!',
     id: 'sokken-check',
+    players: false
   }),
   g({
     name: 'Snake Eyes!',
     id: 'snake-eyes',
+    players: {
+      minimum: 1,
+      maximum: 1
+    }
   })
 ]
 

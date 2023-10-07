@@ -29,8 +29,9 @@ const MIN_GAME_INTERVAL = 1
 const DEFAULT_GAME_CHANCE = 1
 
 
-// How long games last on screen
-const GAME_DURATION = 10
+// How many cycles games last on screen
+// So 6 would mean 60 seconds
+const GAME_DURATION = 1
 
 
 function GameView() {
@@ -100,7 +101,14 @@ function GameView() {
         setGameChance(DEFAULT_GAME_CHANCE)
 
         // Select a game that can support the playerbase
-        const possibleGames = selectedGames.filter(game => players.length >= game.players.minimum)
+        const possibleGames = selectedGames.filter(g => {
+          // Remove inactive games
+          if (!g.active) return false
+          // Games where #players does not matter do not have to be filtered
+          if (!g.players) return true
+          // Filter games out that cannot support the current playerbase
+          return players.length >= g.players.minimum
+        })
         const game = possibleGames[Math.floor(Math.random() * possibleGames.length)]
 
         console.log('Game time! We are going to play: ' + game.name)
@@ -152,6 +160,7 @@ function GameView() {
 
   function gameDone() {
     setCurrentGame(null)
+    setSelectedPlayers([])
     setTimeSinceLastGame(0)
     setTimeSinceGameBegin(0)
   }
@@ -162,25 +171,36 @@ function GameView() {
 
     let selection: Player[] = []
 
-    if (game.players.maximum > players.length) {
+    // If the game does not require players, skip
+    if (!game.players) return
+
+    console.log(game.players.maximum)
+
+    if (game.players.maximum < players.length) {
       // Select the first x players
-      selection = playerRanking.splice(0, game.players.maximum)
+      selection = playerRanking.slice(0, game.players.maximum)
     } else {
       selection = playerRanking
     }
 
+    console.log('Selected the following players')
+    console.log({ selection })
+
     // Update the ranking
-    setPlayers(ps => {
-      for (const playerSelected of selection) {
-        let p = ps.find(playerObject => playerObject.id === playerSelected.id)
-        if (p) {
-          p.timesSelected++
-          console.log('Player ' + p.name + ' is de lul')
-        }
+    const newPs = players.map(player => {
+      let selectedPlayer = selection.find(p => p.id === player.id)
+
+      if (selectedPlayer) {
+        selectedPlayer.timesSelected += 1
+        console.log('Updating ranking for player ' + selectedPlayer.name + ' to ' + selectedPlayer.timesSelected)
+        return selectedPlayer
       }
 
-      return ps
+      return player
     })
+
+    setPlayers(newPs)
+    setSelectedPlayers(selection)
   }
 
   if (loading) return <div className={styles.game}>

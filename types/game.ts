@@ -17,7 +17,7 @@ export type Game = {
   players: {
     minimum: number,
     maximum: number
-  }
+  } | false
 }
 
 export enum GameTypes {

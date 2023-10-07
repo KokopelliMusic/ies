@@ -1,14 +1,14 @@
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 import styles from '../styles/Setup.module.sass'
-import { GameTypes, gameTypeToname } from '../types/game'
+import { GameTypes, Player, gameTypeToname } from '../types/game'
 import { Players } from '../store/player-store'
 import { useAtom } from 'jotai'
 import { CurrentSelectedGames } from '../store/game-store'
 
 export default function Home() {
-  const [playerInput, setPlayerInput] = useState<string[]>([])
+  const [playerInput, setPlayerInput] = useState<string[]>(JSON.parse(localStorage.getItem('ies-players') || "[]").map((p: Player) => p.name))
   const [step, setStep] = useState<number>(0)
-  const [players, setPlayers] = useAtom(Players)
+  const [_, setPlayers] = useAtom(Players)
   const [games, setGames] = useAtom(CurrentSelectedGames)
 
   const toggleGame = (id: string) => {
@@ -40,8 +40,8 @@ export default function Home() {
     {step === 0 ?
       <>
         <h1>Wie doen er mee?</h1>
-        <p>Vul hieronder de namen van alle spelers in, comma-gesepereerd</p>
-        <textarea onChange={(e) => {
+        <p>Vul hieronder de namen van alle spelers in, komma-gesepereerd</p>
+        <textarea value={playerInput} onChange={(e) => {
           setPlayerInput(e.target.value.split(','))
         }} />
 

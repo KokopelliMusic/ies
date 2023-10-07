@@ -5,8 +5,11 @@ import Background from '../components/background'
 import dynamic from 'next/dynamic'
 import { useAtom } from 'jotai'
 import { CurrentSelectedGames } from '../store/game-store'
-import { Game } from '../types/game'
+import { Game, GameProps, Player } from '../types/game'
 import { FormattedTime, Time } from '../store/time-store'
+import { current } from '@reduxjs/toolkit'
+import { getGameComponent } from '../games/games'
+import { PlayerRanking, Players } from '../store/player-store'
 
 // How often spotify data is polled
 const REFRESH_INTERVAL = 10 // seconds
@@ -17,7 +20,7 @@ const REFRESH_INTERVAL = 10 // seconds
 const GAME_CHECK_INTERVAL = 10 // seconds
 
 // This is the minimum amount of cycles that have to have passed before a game can start
-const MIN_GAME_INTERVAL = 3
+const MIN_GAME_INTERVAL = 1
 
 // Default chance of a game happening, at 20%
 // This is increased on every failed attempt to start a game with 10%
@@ -26,8 +29,14 @@ const MIN_GAME_INTERVAL = 3
 const DEFAULT_GAME_CHANCE = 1
 
 
+// How long games last on screen
+const GAME_DURATION = 10
+
+
 function GameView() {
   const [selectedGames] = useAtom(CurrentSelectedGames)
+  const [players, setPlayers] = useAtom(Players)
+  const [playerRanking] = useAtom(PlayerRanking)
 
   const [time, setTime] = useAtom(Time)
   const [formattedTime] = useAtom(FormattedTime)
@@ -40,9 +49,11 @@ function GameView() {
 
   // Game logic
   const [currentGame, setCurrentGame] = useState<Game | null>(null)
+  const [selectedPlayers, setSelectedPlayers] = useState<Player[]>([])
   const [currentlyPlaying, setCurrentlyPlaying] = useState<CurrentlyPlayingData | null>(null)
   const [previouslyPlayed, setPreviouslyPlayed] = useState<CurrentlyPlayingData | null>(null)
   const [timeSinceLastGame, setTimeSinceLastGame] = useState<number>(0)
+  const [timeSinceGameBegin, setTimeSinceGameBegin] = useState<number>(0)
   const [gameChance, setGameChance] = useState<number>(DEFAULT_GAME_CHANCE)
 
   // Setup the ticker
@@ -67,6 +78,12 @@ function GameView() {
 
     if (time % GAME_CHECK_INTERVAL === 0) {
       if (currentGame !== null) {
+        if (timeSinceGameBegin > GAME_DURATION) {
+          gameDone()
+          return
+        }
+
+        setTimeSinceGameBegin(t => t + 1)
         return
       }
 
@@ -82,9 +99,13 @@ function GameView() {
 
         setGameChance(DEFAULT_GAME_CHANCE)
 
-        // Start a game!
-        const game = selectedGames[Math.floor(Math.random() * selectedGames.length)]
-        console.log('Game time! We are going to play: ' + game)
+        // Select a game that can support the playerbase
+        const possibleGames = selectedGames.filter(game => players.length >= game.players.minimum)
+        const game = possibleGames[Math.floor(Math.random() * possibleGames.length)]
+
+        console.log('Game time! We are going to play: ' + game.name)
+        console.log(game)
+        selectPlayers(game)
         setCurrentGame(game)
       }
     }
@@ -132,6 +153,34 @@ function GameView() {
   function gameDone() {
     setCurrentGame(null)
     setTimeSinceLastGame(0)
+    setTimeSinceGameBegin(0)
+  }
+
+  function selectPlayers(game: Game) {
+    // Select the player which has been selected the least amount of times
+    // Also update the timesSelected property on a Player
+
+    let selection: Player[] = []
+
+    if (game.players.maximum > players.length) {
+      // Select the first x players
+      selection = playerRanking.splice(0, game.players.maximum)
+    } else {
+      selection = playerRanking
+    }
+
+    // Update the ranking
+    setPlayers(ps => {
+      for (const playerSelected of selection) {
+        let p = ps.find(playerObject => playerObject.id === playerSelected.id)
+        if (p) {
+          p.timesSelected++
+          console.log('Player ' + p.name + ' is de lul')
+        }
+      }
+
+      return ps
+    })
   }
 
   if (loading) return <div className={styles.game}>
@@ -140,7 +189,7 @@ function GameView() {
     </div>
 
     <div className={styles.loading}>
-      <h1>Invictus Entertainment Systeem</h1>
+      <h1>Kokopelli</h1>
       <h2>Laden...</h2>
     </div>
   </div>
@@ -158,7 +207,7 @@ function GameView() {
 
     <div className={styles.header}>
       <div className={styles.clock}>
-        <button className={styles.editButton} onClick={() => dialogRef.current?.showModal()}>Instellingen</button>
+        <button className={styles.editButton} onClick={() => dialogRef.current?.showModal()}>⚙️</button>
       </div>
 
       {currentGame !== null ?
@@ -167,7 +216,7 @@ function GameView() {
         </h1>
         :
         <h1 className={styles.fadeIn}>
-          Invictus Entertainment Systeem
+          Kokopelli
         </h1>
       }
 
@@ -177,8 +226,8 @@ function GameView() {
     </div>
 
     <main className={`${styles.main} ${styles.fadeIn}`} key={currentGame !== null ? -1 : currentGame}>
-      {currentGame !== null ?
-        currentGame.component({ done: gameDone, players: [] })
+      {currentGame ?
+        getGameComponent(currentGame, selectedPlayers)
         :
         <div className={`${songSlide ? styles.slide : ''} ${styles.spotifyContainer}`}>
           <SpotifyView currentlyPlaying={previouslyPlayed} key={currentlyPlaying?.item?.id ?? 'id'} />

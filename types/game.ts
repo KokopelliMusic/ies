@@ -2,17 +2,16 @@ export type Player = {
   name: string
   id: number
   active: boolean
+  timesSelected: number
 }
 
 export type GameProps = {
-  done: () => void
   players: Player[]
 }
 
 export type Game = {
   name: string
   id: string
-  component: (props: GameProps) => JSX.Element,
   active: boolean,
   // If undefined, then >2 players
   players: {

@@ -1,8 +1,8 @@
 import { useEffect, useRef, useState } from 'react'
 import styles from '../../styles/games/text.module.sass'
 import { useSelector } from 'react-redux'
-import { selectSettingsState } from '../../store/SettingsSlice'
-import { getRandomPunishment } from '../../utils/punish'
+import { selectSettingsState } from '../store/SettingsSlice'
+import { getRandomPunishment } from '../utils/punish'
 
 const words = [
   'Huts',

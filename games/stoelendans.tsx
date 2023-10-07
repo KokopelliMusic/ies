@@ -1,7 +1,7 @@
 import { useEffect, useRef } from 'react'
 import styles from '../../styles/games/text.module.sass'
 import { useSelector } from 'react-redux'
-import { selectSettingsState } from '../../store/SettingsSlice'
+import { selectSettingsState } from '../store/SettingsSlice'
 
 export function Stoelendans(props: GameProps) {
   const beginTime = useRef<number>(props.time)

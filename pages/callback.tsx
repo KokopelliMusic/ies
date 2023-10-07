@@ -29,7 +29,7 @@ export default function SpotifyCallback() {
       }
 
       // Redirect
-      window.location.href = '/game'
+      window.location.href = '/setup'
     })()
   }, [])
 

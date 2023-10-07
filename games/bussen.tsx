@@ -1,9 +1,9 @@
 import { useEffect, useRef, useState } from 'react'
 import styles from '../../styles/games/text.module.sass'
 import { useSelector } from 'react-redux'
-import { selectPlayerState } from '../../store/PlayerSlice'
-import { selectSettingsState } from '../../store/SettingsSlice'
-import { usePlayers } from '../usePlayers'
+import { selectPlayerState } from '../store/PlayerSlice'
+import { selectSettingsState } from '../store/SettingsSlice'
+import { usePlayers } from '../components/usePlayers'
 
 export function Bussen(props: GameProps) {
   const beginTime = useRef<number>(props.time)

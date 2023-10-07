@@ -23,8 +23,3 @@ type SpotifyAlbum = {
     width: number
   }[]
 }
-
-type GameProps = {
-  time: number
-  done: () => void
-}

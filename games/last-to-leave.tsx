@@ -1,27 +1,24 @@
 import { useEffect, useRef } from 'react'
 import styles from '../../styles/games/text.module.sass'
 import { useSelector } from 'react-redux'
-import { selectSettingsState } from '../../store/SettingsSlice'
-import { usePlayers } from '../usePlayers'
+import { selectSettingsState } from '../store/SettingsSlice'
 
-export function DuctTapeAlarm(props: GameProps) {
+export function LastToLeave(props: GameProps) {
   const beginTime = useRef<number>(props.time)
   const settings = useSelector(selectSettingsState)
-
-  const deLul = useRef(usePlayers(2))
 
   useEffect(() => {
     // After 60 seconds, the game is done
     if ((props.time - beginTime.current) > settings.timeOnScreen) {
-      console.log('[DuctTapeAlarm] Done!')
+      console.log('[LastToLeave] Done!')
       props.done()
     }
   }, [props])
 
 
   return <div className={styles.main}>
-    <h1><span>{deLul.current[0]}</span> & <span>{deLul.current[1]}</span></h1>
+    <h1><span>NL Alert</span></h1>
 
-    <h2>Pak de ductape maar!</h2>
+    <h2>De eerste persoon die de ruimte/tuin verlaat vouwt een <span>bak</span></h2>
   </div>
 }

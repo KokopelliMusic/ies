@@ -1,9 +1,9 @@
 import { useEffect, useRef, useState } from 'react'
 import styles from '../../styles/games/text.module.sass'
 import { useSelector } from 'react-redux'
-import { selectSettingsState } from '../../store/SettingsSlice'
-import { usePlayers } from '../usePlayers'
-import { getRandomElement } from '../../utils/random'
+import { selectSettingsState } from '../store/SettingsSlice'
+import { usePlayers } from '../components/usePlayers'
+import { getRandomElement } from '../utils/random'
 
 const teamnames = [
   "De Bierbrouwers",

@@ -10,10 +10,10 @@ function LoginWithSpotify() {
   }, [])
 
   return <div className={styles.spotify}>
-    <h1>Invictus Entertainment Systeem</h1>
+    <h1>Welkom bij Invictus Entertainment Systeem</h1>
 
     <a className={styles.link} href={getSpotifyLoginLink()}>
-      <h2>Login</h2>
+      <h2>Login met spotify</h2>
     </a>
   </div>
 }

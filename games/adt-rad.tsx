@@ -1,9 +1,9 @@
 import { useEffect, useRef, useState } from 'react'
 import styles from '../../styles/games/adt-rad.module.sass'
 import Image from 'next/image'
-import { selectSettingsState } from '../../store/SettingsSlice'
+import { selectSettingsState } from '../store/SettingsSlice'
 import { useSelector } from 'react-redux'
-import { selectPlayerState } from '../../store/PlayerSlice'
+import { selectPlayerState } from '../store/PlayerSlice'
 
 export function AdtRad(props: GameProps) {
   // Random number between 30.00 and 90.99

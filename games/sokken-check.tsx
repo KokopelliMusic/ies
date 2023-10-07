@@ -1,5 +1,5 @@
 import styles from '../../styles/games/text.module.sass'
-import { Player } from '../store/player-store'
+import { GameProps } from '../types/game'
 
 export function NoSocks(props: GameProps) {
   return <div className={styles.main}>

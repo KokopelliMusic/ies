@@ -23,3 +23,4 @@ type SpotifyAlbum = {
     width: number
   }[]
 }
+

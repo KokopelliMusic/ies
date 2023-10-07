@@ -1,3 +1,15 @@
+export type Player = {
+  name: string
+  id: number
+  active: boolean
+}
+
+export type GameProps = {
+  time: number
+  done: () => void
+  players: Player[]
+}
+
 export enum GameTypes {
   AdtRad,
   DuctTapeAlarm,

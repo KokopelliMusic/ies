@@ -1,18 +1,6 @@
-import { AdtRad } from './adt-rad'
-import { NoSocks } from './no-socks'
+import { SokkenCheck } from './sokken-check'
 import { SnakeEyes } from './snake-eyes'
-
-type Game = {
-  name: string
-  id: string
-  component: (props: GameProps) => JSX.Element,
-  active: boolean,
-  // If undefined, then >2 players
-  players: {
-    minimum: number,
-    maximum: number
-  }
-}
+import { Game } from '../types/game'
 
 function g(obj: Partial<Game>): Game {
   return Object.assign({
@@ -36,7 +24,7 @@ export const AVAILABLE_GAMES: Game[] = [
   g({
     name: 'Sokken check!',
     id: 'sokken-check',
-    component: NoSocks,
+    component: SokkenCheck,
   }),
   g({
     name: 'Snake Eyes!',

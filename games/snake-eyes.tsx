@@ -1,10 +1,10 @@
 import { useEffect, useRef, useState } from 'react'
-import styles from '../../styles/games/text.module.sass'
+import styles from '../styles/games/text.module.sass'
 import { useSelector } from 'react-redux'
-import { selectPlayerState } from '../store/PlayerSlice'
 import { selectSettingsState } from '../store/SettingsSlice'
 import { getRandomPunishmentSecondPerson } from '../utils/punish'
 import { usePlayers } from '../components/usePlayers'
+import { GameProps } from '../types/game'
 
 export function SnakeEyes(props: GameProps) {
   const beginTime = useRef<number>(props.time)

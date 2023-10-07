@@ -1,43 +1,36 @@
-import React, { useEffect, useLayoutEffect, useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import styles from '../styles/Game.module.sass'
 import { formatTime } from '../utils/clock'
-import Image from 'next/image'
-// import Background from '../public/background.svg'
 import Background from '../components/background'
-import { AdtRad } from '../games/adt-rad'
 import dynamic from 'next/dynamic'
-import { DuctTapeAlarm } from '../games/duct-tape-alarm'
-import { useDispatch, useSelector } from 'react-redux'
-import { addPlayer, editPlayerName, selectPlayerState } from '../store/PlayerSlice'
-import { removePlayer } from '../store/PlayerSlice'
-import { DrinkingBuddies } from '../games/drinking-buddies'
-import { LastToLeave } from '../games/last-to-leave'
-import { SayNoEvil } from '../games/say-no-evil'
-import { SnakeEyes } from '../games/snake-eyes'
-import { Bussen } from '../games/bussen'
-import { DeepFryFrenzy } from '../games/deep-fry-frenzy'
-import { NoSocks } from '../games/no-socks'
-import { ClothingCheck } from '../games/clothing-check'
-import { BeerMile } from '../games/beer-mile'
-import { StressPong } from '../games/stress-pong'
-import { BeerRelay } from '../games/beer-relay'
-import { GameTypes, gameTypeToname, getAmountOfGames } from '../types/game'
-import { changeGame, selectEnabledGamesState } from '../store/EnabledGamesSlice'
-import { Barman } from '../games/barman'
-import { Stoelendans } from '../games/stoelendans'
+import { useAtom } from 'jotai'
+import { CurrentSelectedGames } from '../store/game-store'
+import { Game } from '../types/game'
+import { FormattedTime, Time } from '../store/time-store'
 
-const REFRESH_INTERVAL = 5 // seconds
-const GAME_CHECK_INTERVAL = 60 // seconds
-// This is the minimum amount of checks that have to have passed before a game can start
+// How often spotify data is polled
+const REFRESH_INTERVAL = 10 // seconds
+// How often we cycle through the game loop
+
+// Every x seconds we either play a game, or increase the chance that a game happens
+// const GAME_CHECK_INTERVAL = 60 // seconds
+const GAME_CHECK_INTERVAL = 10 // seconds
+
+// This is the minimum amount of cycles that have to have passed before a game can start
 const MIN_GAME_INTERVAL = 3
-const DEFAULT_GAME_CHANCE = 0.2
 
+// Default chance of a game happening, at 20%
+// This is increased on every failed attempt to start a game with 10%
+// After a game this is reset to 20%
+// const DEFAULT_GAME_CHANCE = 0.2
+const DEFAULT_GAME_CHANCE = 1
 
 
 function GameView() {
-  const enabledGames = useSelector(selectEnabledGamesState)
+  const [selectedGames] = useAtom(CurrentSelectedGames)
 
-  const [time, setTime] = useState<number>(0)
+  const [time, setTime] = useAtom(Time)
+  const [formattedTime] = useAtom(FormattedTime)
   const [loading, setLoading] = useState<boolean>(true)
   const [hideBg, setHideBg] = useState<boolean>(true)
 
@@ -46,18 +39,14 @@ function GameView() {
   const [songSlide, setSongSlide] = useState<boolean>(false)
 
   // Game logic
-  const [currentGame, setCurrentGame] = useState<GameTypes | null>(null)
+  const [currentGame, setCurrentGame] = useState<Game | null>(null)
   const [currentlyPlaying, setCurrentlyPlaying] = useState<CurrentlyPlayingData | null>(null)
   const [previouslyPlayed, setPreviouslyPlayed] = useState<CurrentlyPlayingData | null>(null)
   const [timeSinceLastGame, setTimeSinceLastGame] = useState<number>(0)
   const [gameChance, setGameChance] = useState<number>(DEFAULT_GAME_CHANCE)
 
-  // Setup app
+  // Setup the ticker
   useEffect(() => {
-    const time = localStorage.getItem('time')
-    if (time) setTime(parseInt(time))
-
-
     const interval = setInterval(() => setTime(t => t + 1), 1000)
     return () => clearInterval(interval)
   }, [])
@@ -68,10 +57,9 @@ function GameView() {
       .then(() => setTimeout(() => setLoading(false), 500))
   }, [])
 
-  // React to time
+  // Main game loop, runs every tick
   useEffect(() => {
     if (time === 0) return
-    localStorage.setItem('time', time.toString())
 
     if (time % REFRESH_INTERVAL === 0) {
       refreshSpotify()
@@ -95,14 +83,15 @@ function GameView() {
         setGameChance(DEFAULT_GAME_CHANCE)
 
         // Start a game!
-        const game = enabledGames[Math.floor(Math.random() * enabledGames.length / 2)]
-        console.log('Game time! We are going to play: ' + gameTypeToname(game))
+        const game = selectedGames[Math.floor(Math.random() * selectedGames.length)]
+        console.log('Game time! We are going to play: ' + game)
         setCurrentGame(game)
       }
     }
   }, [time])
 
-  // A new game starts!
+  // When the ticker decides that a new game is starting
+  // start that game
   useEffect(() => {
     if (currentGame === null) {
       setTimeSinceLastGame(0)
@@ -140,44 +129,6 @@ function GameView() {
       })
   }
 
-  function selectGameComponent(game: GameTypes) {
-    switch (game) {
-      case GameTypes.AdtRad:
-        return <AdtRad time={time} done={gameDone} />
-      case GameTypes.DuctTapeAlarm:
-        return <DuctTapeAlarm time={time} done={gameDone} />
-      case GameTypes.DrinkingBuddies:
-        return <DrinkingBuddies time={time} done={gameDone} />
-      case GameTypes.LastToLeave:
-        return <LastToLeave time={time} done={gameDone} />
-      case GameTypes.SayNoEvil:
-        return <SayNoEvil time={time} done={gameDone} />
-      case GameTypes.SnakeEyes:
-        return <SnakeEyes time={time} done={gameDone} />
-      case GameTypes.Bussen:
-        return <Bussen time={time} done={gameDone} />
-      case GameTypes.DeepFryFrenzy:
-        return <DeepFryFrenzy time={time} done={gameDone} />
-      case GameTypes.NoSocks:
-        return <NoSocks time={time} done={gameDone} />
-      case GameTypes.ClothingCheck:
-        return <ClothingCheck time={time} done={gameDone} />
-      case GameTypes.BeerMile:
-        return <BeerMile time={time} done={gameDone} />
-      case GameTypes.StressPong:
-        return <StressPong time={time} done={gameDone} />
-      case GameTypes.BeerRelay:
-        return <BeerRelay time={time} done={gameDone} />
-      case GameTypes.Barman:
-        return <Barman time={time} done={gameDone} />
-      case GameTypes.Stoelendans:
-        return <Stoelendans time={time} done={gameDone} />
-
-      default:
-        return <div>Onbekend spel</div>
-    }
-  }
-
   function gameDone() {
     setCurrentGame(null)
     setTimeSinceLastGame(0)
@@ -212,7 +163,7 @@ function GameView() {
 
       {currentGame !== null ?
         <h1 className={styles.fadeIn + ' ' + styles.title}>
-          {gameTypeToname(currentGame)}
+          {currentGame.name}
         </h1>
         :
         <h1 className={styles.fadeIn}>
@@ -221,13 +172,13 @@ function GameView() {
       }
 
       <p className={styles.clock}>
-        {formatTime(time)}
+        {formattedTime}
       </p>
     </div>
 
     <main className={`${styles.main} ${styles.fadeIn}`} key={currentGame !== null ? -1 : currentGame}>
       {currentGame !== null ?
-        selectGameComponent(currentGame)
+        currentGame.component({ done: gameDone, players: [] })
         :
         <div className={`${songSlide ? styles.slide : ''} ${styles.spotifyContainer}`}>
           <SpotifyView currentlyPlaying={previouslyPlayed} key={currentlyPlaying?.item?.id ?? 'id'} />
@@ -239,13 +190,13 @@ function GameView() {
 
 function Dialog({ dialogRef }: { dialogRef: React.RefObject<HTMLDialogElement> }) {
   // Redux
-  const players = useSelector(selectPlayerState)
-  const enabledGames = useSelector(selectEnabledGamesState)
-  const dispatch = useDispatch()
+  // const players = useSelector(selectPlayerState)
+  // const enabledGames = useSelector(selectEnabledGamesState)
+  // const dispatch = useDispatch()
 
   return <dialog ref={dialogRef} className={styles.dialog}>
     <h1>Bewerk spelers</h1>
-    <div className={styles.dialogTable}>
+    {/* <div className={styles.dialogTable}>
       <div>
         <p>Voer hieronder de spelers in.</p>
         {players.map((player, idx) => <div key={idx}>
@@ -262,7 +213,7 @@ function Dialog({ dialogRef }: { dialogRef: React.RefObject<HTMLDialogElement> }
           <label>{gameTypeToname(game)}</label>
         </div>)}
       </div>
-    </div>
+    </div> */}
 
     <br />
     <br />

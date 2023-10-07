@@ -1,5 +1,5 @@
 import { useEffect, useRef } from 'react'
-import styles from '../../styles/games/text.module.sass'
+import styles from '../styles/games/text.module.sass'
 
 export function NoSocks(props: GameProps) {
   const beginTime = useRef<number>(props.time)

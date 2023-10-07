@@ -1,7 +1,7 @@
-import styles from '../../styles/games/text.module.sass'
+import styles from '../styles/games/text.module.sass'
 import { GameProps } from '../types/game'
 
-export function NoSocks(props: GameProps) {
+export function SokkenCheck(props: GameProps) {
   return <div className={styles.main}>
     <h1><span>Sokken check</span></h1>
 

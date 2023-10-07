@@ -5,9 +5,20 @@ export type Player = {
 }
 
 export type GameProps = {
-  time: number
   done: () => void
   players: Player[]
+}
+
+export type Game = {
+  name: string
+  id: string
+  component: (props: GameProps) => JSX.Element,
+  active: boolean,
+  // If undefined, then >2 players
+  players: {
+    minimum: number,
+    maximum: number
+  }
 }
 
 export enum GameTypes {

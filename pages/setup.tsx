@@ -31,8 +31,9 @@ export default function Home() {
       }
     }))
 
-
     // Redirect to game
+
+    window.location.href = '/game'
   }
 
   return <div className={styles.container}>
@@ -47,7 +48,7 @@ export default function Home() {
         <div className="center"><button style={{ marginTop: '1rem' }} onClick={() => setStep(1)}>Doorgaan</button></div>
 
         <p>Huidige spelers:</p>
-        {playerInput.map(player => <div>{player}</div>)}
+        {playerInput.map((player, idx) => <div key={idx}>{player}</div>)}
       </> :
       <>
         <h1>Welke spellen willen jullie spelen?</h1>
@@ -64,9 +65,9 @@ export default function Home() {
               </tr>
             </thead>
             <tbody>
-              {Array.from(Array(Object.keys(GameTypes).length / 2).keys()).map((game, idx) => <tr key={idx}>
-                <td><label htmlFor={'game-' + game}>{gameTypeToname(game)}</label></td>
-                <td><input id={'game-' + game} type="checkbox" defaultChecked={true} checked={gameInput[game]} onChange={e => toggleGame(game)} /></td>
+              {games.map((game, idx) => <tr key={idx}>
+                <td><label htmlFor={'game-' + game}>{game.name}</label></td>
+                <td><input id={'game-' + game} type="checkbox" defaultChecked={true} checked={game.active} onChange={e => toggleGame(game.id)} /></td>
               </tr>)}
             </tbody>
           </table>

@@ -9,3 +9,15 @@ datasource db {
   provider = "sqlite"
   url      = "file:./dev.db"
 }
+
+
+model SpotifyAuthToken {
+  // This is session dependant
+  userCookie String @id
+  
+  refreshToken String 
+  accessToken String
+  expiresAt DateTime
+
+  updatedAt DateTime @updatedAt
+}
